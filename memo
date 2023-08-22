@@ -1,0 +1,42 @@
+#! /bin/bash
+DATE=`date +%m月%d日`
+TARGET=`tail -1 joblist.txt`
+LOG_PATH="/home/tarakofire/ログ"
+echo "start mkdir $TARGET$DATE"
+#格納用のディレクトリを作成
+mkdir $TARGET"_"$DATE
+mkdir $TARGET"_"$DATE/out
+mkdir $TARGET"_"$DATE/IN
+mkdir $TARGET"_"$DATE/log
+
+cat joblist.txt | while read line
+do
+	#テスト用特定ジョブになったらジョブをチェック
+	#本番はジョブごとにrmするものあり
+  	if [[ "$line" == *2 ]]; then
+   		echo "問題のジョブです"
+  	fi
+	echo "sh "$line" を実行しました"
+	#使用したインプットの情報をreportに下記込む
+	
+	#実行結果簡易版をreportに出力
+	ls -t $LOG_PATH/$line* | head -1 | xargs tail -3 >> $TARGET"_"$DATE/report.txt
+ 	#一番新しいログをサーバーから移動
+	ls -t $LOG_PATH/$line* | head -1 | xargs -I {} cp {} $TARGET"_"$DATE/log
+
+	#RC=0かどうかをチェックし、ジョブ実行継続を判断する
+  	#ls -t LOG_PATH/$line* | head -1  => ログフォルダーの中で、対象ジョブの一番新しいログを選択
+  	#xargs -I {} tail -2 LOG_PATH/{} | head -1 | grep "RC=0" => RC=0が含まれるかチェック
+	SIGNAL=`ls -t $LOG_PATH/$line* | head -1 | xargs tail -2 | head -1`
+	if [[ "$SIGNAL" != *"RC=0"* ]]; then
+ 		echo $line"でエラーが出ました"
+		break
+ 	fi
+	
+	#本番はもっと移動するものあり
+	#ls -t $STORAGE_PATH/$line* | xargs -I {} cp {} $$TARGET"_"$DATE/outのように
+	#ジョブによっては帳票を取る必要があるものがあるので、実行完了後、
+	#帳票を取ってくださいのメッセージをreportに書き込む
+
+done
+echo "end"
