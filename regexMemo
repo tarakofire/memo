@@ -2,3 +2,33 @@
 0-500
 ^(?:[0-9]|[1-9][0-9]|[1-4][0-9][0-9]|500)$
 
+半角
+^[!-~]{1,30}$
+
+
+public class Main {
+    public static void main(String[] args) {
+        String a = "0.5";
+
+        try {
+            BigDecimal aValue = new BigDecimal(a);
+
+            BigDecimal lowerBound = new BigDecimal("0");
+            BigDecimal upperBound = new BigDecimal("0.5");
+
+            if (aValue.compareTo(lowerBound) >= 0 && aValue.compareTo(upperBound) <= 0) {
+                System.out.println("aは0から0.5の範囲内の数値です");
+            } else {
+                System.out.println("aは範囲外です");
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("aは数値ではありません");
+        }
+    }
+}
+
+
+
+
+
+
