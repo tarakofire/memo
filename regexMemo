@@ -11,6 +11,9 @@
 半角
 ^[!-~]{1,30}$
 
+全角
+[^\x01-\x7E]
+
 
 public class Main {
     public static void main(String[] args) {
